@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script
+      src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+      integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+      crossorigin=""
+    ></script>
+    <style>
+      #container {
+        height: 100vh;
+        width: 100vw;
+      }
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="map"></div>
+    </div>
+
+    <script>
+      let map = L.map("map").setView([24, 90], 8); // Lat, Lng
+
+      // Credit line should always be added using attribution
+      // Options: 
+      //    Mapbox: https://docs.mapbox.com/help/how-mapbox-works/attribution/
+      //    Stamen: http://maps.stamen.com/
+      //    Thunderforest: https://www.thunderforest.com/terms/
+      let tiles = L.tileLayer(
+        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+        {
+          maxZoom: 18,
+          attribution:
+            'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        //   id: "mapbox/streets-v11",
+          id: "mapbox/satellite-v9",
+          tileSize: 512,
+          zoomOffset: -1,
+        }
+      ).addTo(map);
+
+      // Marker
+      let marker = L.marker([22, 90]).addTo(map);
+
+      // Circle
+      let circle = L.circle(
+        [22, 90.2],
+        {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 5000
+        }).addTo(map);
+
+      // Polygon
+      let polygon = L.polygon(
+          [
+              [22.5, 90.0],
+              [22.6, 91.0],
+              [23.1, 90.5]
+          ]
+      ).addTo(map);
+
+      // Popups can be attached to any object
+      marker.bindPopup("<b>Hello World!</b>").openPopup(); // openPopup() will make the Popup opened
+      circle.bindPopup("I am a circle");
+      polygon.bindPopup("I am a polygon");
+
+      // Popups can be created and added as layers
+      // openOn instead of addTo
+      // it handles automatic closing of a previously opened popup when opening a new one
+      let popup = L.popup()
+        .setLatLng([22, 91])
+        .setContent("I am a standalone popup")
+        .openOn(map);
+
+      // Dealing with events
+      // Userclicks, zoom change -> object send an event and a function can subscribe to the function
+      // Each object has their own set of events can be found here - https://leafletjs.com/reference.html
+      function onMapDoubleClick(e) {
+        //   alert("You clicked the map at " + e.latlng);
+        let new_marker = L.marker(e.latlng).addTo(map);
+        new_marker.bindPopup("You clicked the map at " + e.latlng);
+      }
+
+      map.on('dblclick', onMapDoubleClick);
+
+      // Opening popup using event
+      // Creating popup inside the function does not work! why?
+      let popup_on_click = L.popup();
+      
+      function onMapClick(e) {
+        popup_on_click
+          .setLatLng(e.latlng)
+          .setContent("You clicked the map at " + e.latlng.toString())
+          .openOn(map);
+      }
+      map.on('click', onMapClick);
+
+
+    </script>
+  </body>
+</html>
